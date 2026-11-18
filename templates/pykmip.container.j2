@@ -1,0 +1,15 @@
+[Unit]
+Description=KMIP Server Container
+Wants=network-online.target
+After=network-online.target
+
+[Container]
+ContainerName={{ pykmip_container_name }}
+Image={{ pykmip_image_name }}:{{ pykmip_image_tag }}
+PublishPort={{ pykmip_port }}:5696
+
+Volume=/opt/pykmip/config/certs:/etc/pykmip/certs:ro,Z
+Volume=/opt/pykmip/config/policies:/etc/pykmip/policies:ro,Z
+
+[Install]
+WantedBy=default.target

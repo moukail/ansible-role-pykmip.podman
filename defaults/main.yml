@@ -1,0 +1,5 @@
+---
+pykmip_image_name: "pykmip-server"
+pykmip_image_tag: "latest"
+pykmip_container_name: "pykmip"
+pykmip_port: 5696

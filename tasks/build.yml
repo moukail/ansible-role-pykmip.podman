@@ -1,0 +1,30 @@
+---
+- name: Create temporary build directory on remote host
+  become_user: "{{ ansible_user }}"
+  ansible.builtin.tempfile:
+    state: directory
+    suffix: pykmip
+  register: pykmip_tmpdir
+
+- name: Copy build context to remote temporary directory
+  become_user: "{{ ansible_user }}"
+  ansible.builtin.copy:
+    src: "{{ item }}"
+    dest: "{{ pykmip_tmpdir.path }}/"
+    mode: "0644"
+  loop: 
+    - Dockerfile
+    - kmip.conf
+
+- name: Build PyKMIP Podman image from temporary directory
+  become_user: "{{ ansible_user }}"
+  containers.podman.podman_image:
+    name: "{{ pykmip_image_name }}"
+    tag: "{{ pykmip_image_tag }}"
+    path: "{{ pykmip_tmpdir.path }}"
+    state: build
+
+- name: Remove temporary build directory
+  ansible.builtin.file:
+    path: "{{ pykmip_tmpdir.path }}"
+    state: absent
