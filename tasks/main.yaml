@@ -26,7 +26,7 @@
     - /opt/pykmip/config/policies/
 
 - name: Build PyKMIP image
-  ansible.builtin.include_tasks: build.yml
+  ansible.builtin.include_tasks: build.yaml
 
 - name: Run PyKMIP container
-  ansible.builtin.include_tasks: run.yml
+  ansible.builtin.include_tasks: run.yaml

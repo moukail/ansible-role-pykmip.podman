@@ -1,0 +1,9 @@
+---
+galaxy_info:
+  author: I Moukafih
+  description: Ansible Role for PyKMIP with Quadlet
+  license: MIT
+  min_ansible_version: "2.1"
+  galaxy_tags:
+    - PyKMIP
+    - security
