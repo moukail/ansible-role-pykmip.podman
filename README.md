@@ -1,8 +1,18 @@
 https://pykmip.readthedocs.io/en/latest/index.html
 https://openbao.org/docs/configuration/seal/kmip/
 
+podman run --name pykmip --replace \
+-v /opt/pykmip/certs/server.crt:/etc/pykmip/certs/server.crt:ro,Z \
+-v /opt/pykmip/certs/server.key:/etc/pykmip/certs/server.key:ro,Z \
+-v /etc/pki/tls/ca.crt:/etc/pykmip/certs/ca.crt:ro \
+-v /opt/pykmip/policies:/etc/pykmip/policies:ro,Z \
+localhost/pykmip-server
 
-podman run --name pykmip --replace -v /opt/pykmip/config/certs:/etc/pykmip/certs:ro,Z -v /opt/pykmip/config/policies:/etc/pykmip/policies:ro,Z localhost/pykmip-server
+md5sum /home/vagrant/certs/ca.crt
+podman exec pykmip md5sum /etc/pykmip/certs/ca.crt
+
+
+
 
 
 [vagrant@openbao pykmip]$ sudo dnf install python3-pip && pip install pykmip
@@ -118,6 +128,4 @@ client.close()
 
 
 
-md5sum /home/vagrant/certs/ca.crt
-podman exec pykmip md5sum /etc/pykmip/certs/ca.crt
-podman inspect openbao --format '{{range .Config.Env}}{{println .}}{{end}}' | grep BAO_KMIP_TLS_SKIP_VERIFY
+

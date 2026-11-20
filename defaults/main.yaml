@@ -3,3 +3,8 @@ pykmip_image_name: "pykmip-server"
 pykmip_image_tag: "latest"
 pykmip_container_name: "pykmip"
 pykmip_port: 5696
+
+cert_dir: /opt/pykmip/certs
+cert_ca_certificate_path: /etc/pki/tls/ca.crt
+cert_certificate_path: /opt/pykmip/certs/server.crt
+cert_key_path: /opt/pykmip/certs/server.key

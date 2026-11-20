@@ -1,15 +1,31 @@
 ---
-- name: Ensure Podman is installed
-  become: true
-  ansible.builtin.package:
-    name: podman
-    state: present
+- name: Check existing TLS CA certificate
+  ansible.builtin.stat:
+    path: "{{ cert_ca_certificate_path }}"
+  register: tls_ca_cert
 
-- name: Enable systemd lingering for the user
-  become: true
-  ansible.builtin.command:
-    cmd: "loginctl enable-linger {{ ansible_user }}"
-    creates: "/var/lib/systemd/linger/{{ ansible_user }}"
+- name: Check existing TLS certificate
+  ansible.builtin.stat:
+    path: "{{ cert_certificate_path }}"
+  register: tls_cert
+
+- name: Check existing TLS key
+  ansible.builtin.stat:
+    path: "{{ cert_key_path }}"
+  register: tls_key
+
+- name: Verify TLS certificate files
+  ansible.builtin.assert:
+    that:
+      - tls_ca_cert.stat.exists
+      - tls_ca_cert.stat.isreg
+      - tls_cert.stat.exists
+      - tls_cert.stat.isreg
+      - tls_key.stat.exists
+      - tls_key.stat.isreg
+    fail_msg: >-
+      One or more TLS files are missing or are not regular files.
+    success_msg: "All TLS files exist and are regular files."
 
 - name: Create PyKMIP configuration directory
   become: true
@@ -22,8 +38,27 @@
     mode: "0750"
   loop:
     - /opt/pykmip/
-    - /opt/pykmip/config/certs/
-    - /opt/pykmip/config/policies/
+    - "{{ cert_dir }}"
+    - /opt/pykmip/policies/
+
+- name: Copy TLS CA certificate
+  ansible.builtin.copy:
+    remote_src: true
+    src: "{{ cert_ca_certificate_path }}"
+    dest: "{{ cert_dir }}/ca.crt"
+    mode: "0644"
+
+- name: Ensure Podman is installed
+  become: true
+  ansible.builtin.package:
+    name: podman
+    state: present
+
+- name: Enable systemd lingering for the user
+  become: true
+  ansible.builtin.command:
+    cmd: "loginctl enable-linger {{ ansible_user }}"
+    creates: "/var/lib/systemd/linger/{{ ansible_user }}"
 
 - name: Build PyKMIP image
   ansible.builtin.include_tasks: build.yaml
