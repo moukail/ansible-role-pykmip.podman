@@ -39,6 +39,7 @@
   loop:
     - /opt/pykmip/
     - "{{ cert_dir }}"
+    - /opt/pykmip/data/
     - /opt/pykmip/policies/
 
 - name: Copy TLS CA certificate
@@ -65,3 +66,6 @@
 
 - name: Run PyKMIP container
   ansible.builtin.include_tasks: run.yaml
+
+- name: Get Key ID
+  ansible.builtin.include_tasks: key_id.yaml

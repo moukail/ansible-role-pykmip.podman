@@ -1,0 +1,42 @@
+---
+- name: Wait for PyKMIP TCP listener
+  ansible.builtin.wait_for:
+    host: 127.0.0.1
+    port: 5696
+    state: started
+    timeout: 60
+    delay: 2
+
+- name: Retrieve or create KMIP key
+  become: true
+  become_user: "{{ ansible_user }}"
+  ansible.builtin.command: podman exec --env KMIP_KEY_NAME={{ pykmip_key_name }} {{ pykmip_container_name }} get_key_id
+  register: kmip_key_result
+  changed_when: false
+  retries: 12
+  delay: 5
+  until: kmip_key_result.rc == 0
+
+- name: Parse KMIP response
+  ansible.builtin.set_fact:
+    kmip_key_data: "{{ kmip_key_result.stdout | from_json }}"
+
+- name: Validate KMIP key
+  ansible.builtin.assert:
+    that:
+      - kmip_key_data.key_id is defined
+      - kmip_key_data.key_id | string | length > 0
+      - kmip_key_data.key_name == pykmip_key_name
+      - kmip_key_data.attributes_verified | bool
+    fail_msg: "KMIP key validation failed."
+
+- name: Store KMIP key ID
+  ansible.builtin.set_fact:
+    kmip_key_id: "{{ kmip_key_data.key_id | string }}"
+
+- name: Display KMIP key ID
+  ansible.builtin.debug:
+    msg:
+      kmip_key_name: "{{ kmip_key_data.key_name }}"
+      kmip_key_id: "{{ kmip_key_id }}"
+      created: "{{ kmip_key_data.changed }}"

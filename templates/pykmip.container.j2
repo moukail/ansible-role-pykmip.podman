@@ -10,6 +10,7 @@ PublishPort={{ pykmip_port }}:5696
 
 Volume={{ cert_dir }}:/etc/pykmip/certs:ro,Z
 Volume=/opt/pykmip/policies:/etc/pykmip/policies:ro,Z
+Volume=/opt/pykmip/data:/etc/pykmip/data:Z
 
 [Install]
 WantedBy=default.target

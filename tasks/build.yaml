@@ -15,6 +15,7 @@
   loop: 
     - Dockerfile
     - kmip.conf
+    - get_key_id.py
 
 - name: Build PyKMIP Podman image from temporary directory
   become_user: "{{ ansible_user }}"
